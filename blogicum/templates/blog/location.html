@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}
+  Публикации по местоположению {{ location.name }}
+{% endblock %}
+{% block content %}
+  <h1 class="text-center">Публикации по местоположению - {{ location.name }}</h1>
+  <p class="col-6 offset-3 mb-5 lead text-center">{{ location.description }}</p>
+  {% for post in page_obj %}
+    <article class="mb-5"> 
+      {% include "includes/post_card.html" %}
+    </article>
+  {% endfor %}
+  {% include "includes/paginator.html" %}
+{% endblock %}
