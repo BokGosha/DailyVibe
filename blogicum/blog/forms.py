@@ -6,6 +6,19 @@ User = get_user_model()
 
 
 class PostForm(forms.Form):
+    """
+    Форма для создания или редактирования поста.
+
+    :Поля:
+    - title (CharField): Заголовок поста.
+    - text (CharField): Основной текст поста.
+    - pud_date (DateTimeField): Дата и время публикации.
+    - location_user (CharField): Локация пользователя.
+    - location (ModelChoiceField): Доступная локация.
+    - category_user (CharField): Категория пользователя.
+    - category (ModelChoiceField): Доступная категория.
+    - image (ImageField): Изображение.
+    """
     title = forms.CharField(max_length=256, label='Заголовок')
     text = forms.CharField(widget=forms.Textarea)
     pub_date = forms.DateTimeField(
@@ -62,6 +75,12 @@ class PostForm(forms.Form):
 
 
 class CommentForm(forms.ModelForm):
+    """
+    Форма для добавления комментариев.
+
+    :Поля:
+    - text (TextArea): Текст комментария.
+    """
 
     class Meta:
         model = Comment
@@ -72,6 +91,15 @@ class CommentForm(forms.ModelForm):
 
 
 class UserForm(forms.ModelForm):
+    """
+    Форма для изменения профиля пользователя.
+
+    :Поля:
+    - username: Юзернейм.
+    - first_name: Имя.
+    - last_name: Фамилия.
+    - email: Почта.
+    """
 
     class Meta:
         model = User

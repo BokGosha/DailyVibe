@@ -15,6 +15,16 @@ User = get_user_model()
 
 
 def filter_posts(posts):
+    """
+    Фильтрует посты, выбирая только опубликованные записи и категории.
+    Аннотирует количество комментариев и сортирует результаты по дате публикации.
+
+    :Аргументы:
+    - posts: QuerySet объектов Post
+
+    :Возвращает:
+    - QuerySet с выбранными полями и фильтрами
+    """
     return posts.select_related(
         'category',
         'author',
@@ -28,12 +38,32 @@ def filter_posts(posts):
 
 
 def paginator_page(list, count, request):
+    """
+    Создает пагинатор для списка элементов.
+
+    :Аргументы:
+    - list: Список элементов для пагинации
+    - count: Количество элементов на странице
+    - request: Объект запроса, используемый для получения номера страницы
+
+    :Возвращает:
+    - Объект Page из пэйджинатора, соответствующий номеру страницы
+    """
     paginator = Paginator(list, count)
     page_number = request.GET.get('page')
     return paginator.get_page(page_number)
 
 
 def index(request):
+    """
+    Представление главной страницы блога.
+
+    :Аргументы:
+    - request: Объект запроса HTTP
+
+    :Возвращает:
+    - Ответ HTTP с рендером шаблона blog/index.html и контекстом, включающим постраничную выборку публикаций
+    """
     template_name = 'blog/index.html'
     posts = filter_posts(Post.objects)
     page_obj = paginator_page(posts, 10, request)
@@ -42,6 +72,16 @@ def index(request):
 
 
 def post_detail(request, post_id):
+    """
+    Представление страницы отдельного поста.
+
+    :Аргументы:
+    - request: Объект запроса HTTP
+    - postid: Идентификатор поста
+
+    :Возвращает:
+    - Ответ HTTP с рендером шаблона blog/detail.html и контекстом, включающим сам пост, форму для комментариев и существующие комментарии
+    """
     template_name = 'blog/detail.html'
 
     post = get_object_or_404(Post.objects.select_related(

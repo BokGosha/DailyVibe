@@ -8,6 +8,7 @@ from django.views.generic.edit import CreateView
 
 
 urlpatterns = [
+    path('admin/doc/', include('django.contrib.admindocs.urls')),
     path('admin/', admin.site.urls),
     path('auth/', include('django.contrib.auth.urls')),
     path(

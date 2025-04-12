@@ -6,8 +6,14 @@ User = get_user_model()
 
 
 class BaseModel(models.Model):
-    """Абстрактная модель."""
+    """
+    Эта абстрактная модель служит основой для всех остальных моделей в приложении.
+    Она включает общие поля, такие как is_published и created_at, которые могут быть использованы всеми дочерними моделями.
 
+    :Поля:
+    - is_published (BooleanField): Определяет, опубликована ли запись. По умолчанию установлено значение True.
+    - created_at (DateTimeField): Дата и время создания записи. Устанавливается автоматически при создании объекта.
+    """
     is_published = models.BooleanField(
         default=True, verbose_name='Опубликовано',
         help_text='Снимите галочку, чтобы скрыть публикацию.'
@@ -21,8 +27,15 @@ class BaseModel(models.Model):
 
 
 class Location(BaseModel):
-    """Географическая метка."""
+    """
+    Модель представляет географическое местоположение, связанное с публикациями.
+    Каждая запись может быть привязана к конкретному месту.
 
+    :Поля:
+    - name (CharField): Название места.
+    - description (CharField): Краткое описание места.
+    - slug (SlugField): Уникальный идентификатор, используемый в URL. Должен содержать только латинские буквы, цифры, дефисы и подчеркивания.
+    """
     name = models.CharField(max_length=256, verbose_name='Название места')
     description = models.CharField(
         max_length=256, verbose_name='Описание места', blank=True)
@@ -41,8 +54,15 @@ class Location(BaseModel):
 
 
 class Category(BaseModel):
-    """Тематическая категория."""
+    """
+    Модель описывает тематические категории, к которым относятся публикации.
+    Позволяет пользователям удобно находить контент по интересующим темам.
 
+    :Поля:
+    - title (CharField): Заголовок категории.
+    - description (TextField): Подробное описание категории.
+    - slug (SlugField): Уникальный идентификатор для URL.
+    """
     title = models.CharField(max_length=256, verbose_name='Заголовок')
     description = models.TextField(verbose_name='Описание')
     slug = models.SlugField(
@@ -60,8 +80,18 @@ class Category(BaseModel):
 
 
 class Post(BaseModel):
-    """Публикация."""
+    """
+    Основная модель для хранения публикаций. Каждая публикация может принадлежать одному автору, быть привязанной к конкретной категории и местоположению.
 
+    :Поля:
+    - title (CharField): Заголовок публикации.
+    - text (TextField): Основной текст публикации.
+    - pub_date (DateTimeField): Дата и время публикации. Можно задать отложенную публикацию, установив будущее время.
+    - author (ForeignKey): Автор публикации. Связано с моделью пользователя.
+    - location (ForeignKey): Географическое местоположение публикации. Может быть пустым.
+    - category (ForeignKey): Тематическая категория публикации. Может быть пустой.
+    - image (ImageField): Изображение, прикрепленное к публикации. Необязательное поле.
+    """
     title = models.CharField(max_length=256, verbose_name='Заголовок')
     text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField(
@@ -103,8 +133,15 @@ class Post(BaseModel):
 
 
 class Comment(models.Model):
-    """Комментарий."""
+    """
+    Модель для хранения комментариев к публикациям. Каждый комментарий принадлежит одной публикации и одному автору.
 
+    :Поля:
+    - text (TextField): Текст комментария.
+    - post (ForeignKey): Публикация, к которой относится комментарий.
+    - created_at (DateTimeField): Время создания комментария. Устанавливается автоматически.
+    - author (ForeignKey): Автор комментария. Связано с моделью пользователя.
+    """
     text = models.TextField('Текст комментария')
     post = models.ForeignKey(
         Post,
