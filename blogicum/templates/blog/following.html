@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Подписчики
+{% endblock %}
+
+{% block content %}
+    <section class="container my-5">
+        <h1 class="mb-5 text-center ">Ваши подписки</h1>
+        {% if not page_obj %}
+            <div class="alert alert-info text-center">
+                Пока вы ни на кого не подписаны.
+            </div>
+        {% else %}
+            {% for user in page_obj %}
+                <div class="card shadow-sm mb-3 border-0 rounded-lg w-25 mx-auto align-items-center">
+                    <div class="card-body row align-items-center gx-3">
+                        <div class="col">
+                            <a class="d-block text-decoration-none py-2 px-3 bg-light rounded-pill text-primary fw-semibold text-center" 
+                            href="{% url 'blog:profile' user.following.username %}">
+                                @{{ user.following.username }}
+                            </a>
+                            <p class="mt-2">Количество постов: {{ user.following.posts.count }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            
+            {% include "includes/paginator.html" %}
+        {% endif %}
+    </section>
+{% endblock %}

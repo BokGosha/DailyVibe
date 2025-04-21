@@ -367,17 +367,15 @@ def delete_follow(request, username):
 
 @login_required
 def following(request):
-    template_name = 'blog/following.html'
-    following = Follow.objects.filter(user_id=request.user.id)
+    followings = Follow.objects.select_related(
+        'following').filter(user=request.user).order_by('-id')
 
-    result = [
-        post for profile in (get_object_or_404(User.objects, pk=i.following_id) for i in following)
-        for post in profile.posts.annotate(
-            comment_count=Count('comments')
-        ).select_related('category', 'author', 'location')
-    ]
-    result.sort(key=lambda x: x.pub_date, reverse=True)
-    page_obj = paginator_page(result, 10, request)
-    context = {'page_obj': page_obj}
+    paginator = Paginator(followings, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
-    return render(request, template_name, context)
+    context = {
+        'page_obj': page_obj,
+    }
+
+    return render(request, 'blog/following.html', context)
