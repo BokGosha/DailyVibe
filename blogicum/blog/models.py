@@ -132,6 +132,26 @@ class Post(BaseModel):
         return self.title
 
 
+class Follow(models.Model):
+    """Подписка."""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='follower'
+    )
+    following = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='following'
+    )
+
+    class Meta:
+        verbose_name = 'подписка'
+        verbose_name_plural = 'Подписки'
+        unique_together = ('user', 'following')
+
+
 class Comment(models.Model):
     """
     Модель для хранения комментариев к публикациям. Каждый комментарий принадлежит одной публикации и одному автору.

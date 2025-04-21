@@ -4,6 +4,20 @@
 {% endblock %}
 {% block content %}
   <h1 class="mb-5 text-center ">Страница пользователя {{ profile.username }}</h1>
+  {% if user.is_authenticated and profile.username != user.username and not is_subscriber %}
+  <div style="display: flex; justify-content:center; margin-bottom: 25px;">
+    <button type="button" class="btn btn-success">
+      <a href="{% url 'blog:follow' profile.username%}" style="text-decoration: none; color: white;">Подписаться</a>
+    </button>
+  </div>
+  {% endif %}
+  {% if user.is_authenticated and profile.username != user.username and is_subscriber %}
+  <div style="display: flex; justify-content:center; margin-bottom: 25px;">
+    <button type="button" class="btn btn-danger">
+      <a href="{% url 'blog:delete_follow' profile.username%}" style="text-decoration: none; color: white;">Отписаться</a>
+    </button>
+  </div>
+  {% endif %}
   <small>
     <ul class="list-group list-group-horizontal justify-content-center mb-3">
       <li class="list-group-item text-muted">Имя пользователя: {% if profile.get_full_name %}{{ profile.get_full_name }}{% else %}не указано{% endif %}</li>

@@ -7,6 +7,10 @@ app_name = 'blog'
 urlpatterns = [
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('profile/<str:username>/', views.user_profile, name='profile'),
+    path('profile/<str:username>/follow/', views.user_follow, name='follow'),
+    path('profile/<str:username>/delete_follow/',
+         views.delete_follow, name='delete_follow'),
+    path('following/', views.following, name='following'),
     path(
         'category/<slug:category_slug>/',
         views.category_posts,

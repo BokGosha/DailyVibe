@@ -7,7 +7,7 @@ from django.db.models import Q, Count
 from django.utils.timezone import now
 from django.contrib.auth import get_user_model
 
-from .models import Post, Category, Comment, Location
+from .models import Post, Category, Comment, Location, Follow
 from .forms import PostForm, CommentForm, UserForm
 
 
@@ -77,7 +77,7 @@ def post_detail(request, post_id):
 
     :Аргументы:
     - request: Объект запроса HTTP
-    - postid: Идентификатор поста
+    - post_id: Идентификатор поста
 
     :Возвращает:
     - Ответ HTTP с рендером шаблона blog/detail.html и контекстом, включающим сам пост, форму для комментариев и существующие комментарии
@@ -231,6 +231,12 @@ def generate_slug(text):
 
 @login_required
 def create_post(request):
+    """
+    Функция создаёт новый пост в блоге.
+
+    :Аргументы:
+    - request: Объект HTTP-запроса Django
+    """
     template = 'blog/create.html'
     form = PostForm(request.POST or None, request.FILES or None)
     context = {'form': form}
@@ -306,5 +312,72 @@ def delete_post(request, post_id):
     if request.method == 'POST':
         instance.delete()
         return redirect('blog:profile', username=request.user)
+
+    return render(request, template_name, context)
+
+
+def user_profile(request, username):
+    template_name = 'blog/profile.html'
+    profile = get_object_or_404(User.objects, username=username)
+    posts = (
+        profile.posts
+        .annotate(comment_count=Count('comments'))
+        .select_related('category', 'author', 'location')
+        .order_by("-pub_date")
+    )
+
+    page_obj = paginator_page(posts, 10, request)
+
+    is_subscriber = False
+    if request.user is not None:
+        follow = Follow.objects.filter(
+            Q(user_id=request.user.id) & Q(following_id=profile.id))
+        if len(follow) != 0:
+            is_subscriber = True
+
+    context = {
+        'profile': profile,
+        'page_obj': page_obj,
+        'is_subscriber': is_subscriber,
+    }
+    return render(request, template_name, context)
+
+
+@login_required
+def user_follow(request, username):
+    user = request.user
+    following = get_object_or_404(User.objects, username=username)
+
+    Follow.objects.create(user=user, following=following)
+
+    return redirect('blog:profile', username=following.username)
+
+
+@login_required
+def delete_follow(request, username):
+    following = get_object_or_404(User.objects, username=username)
+    instance = get_object_or_404(Follow.objects.filter(
+        Q(user_id=request.user.id)
+        & Q(following_id=following.id)
+    ))
+    instance.delete()
+
+    return redirect('blog:profile', username=following.username)
+
+
+@login_required
+def following(request):
+    template_name = 'blog/following.html'
+    following = Follow.objects.filter(user_id=request.user.id)
+
+    result = [
+        post for profile in (get_object_or_404(User.objects, pk=i.following_id) for i in following)
+        for post in profile.posts.annotate(
+            comment_count=Count('comments')
+        ).select_related('category', 'author', 'location')
+    ]
+    result.sort(key=lambda x: x.pub_date, reverse=True)
+    page_obj = paginator_page(result, 10, request)
+    context = {'page_obj': page_obj}
 
     return render(request, template_name, context)
