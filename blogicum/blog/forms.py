@@ -19,8 +19,13 @@ class PostForm(forms.Form):
     - category (ModelChoiceField): Доступная категория.
     - image (ImageField): Изображение.
     """
+    is_published = forms.BooleanField(
+        required=False, label='Опубликовано',
+        help_text='Снимите галочку, чтобы скрыть публикацию.'
+    )
+    
     title = forms.CharField(max_length=256, label='Заголовок')
-    text = forms.CharField(widget=forms.Textarea)
+    text = forms.CharField(widget=forms.Textarea, label='Описание')
     pub_date = forms.DateTimeField(
         label='Дата и время публикации',
         help_text='Если установить дату и время в будущем — '

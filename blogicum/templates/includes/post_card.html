@@ -10,7 +10,7 @@
       <h6 class="card-subtitle mb-2 text-muted">
         <small>
           {% if not post.is_published %}
-            <p class="text-danger">Пост снят с публикации админом</p>
+            <p class="text-muted">Личный пост</p>
           {% elif not post.category.is_published %}
             <p class="text-danger">Выбранная категория снята с публикации админом</p>
           {% endif %}

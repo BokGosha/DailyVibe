@@ -285,16 +285,47 @@ def edit_post(request, post_id):
     if request.user != instance.author:
         return redirect('blog:post_detail', post_id=post_id)
 
-    form = PostForm(request.POST or None,
-                    request.FILES or None, instance=instance)
+    initial_data = {
+        'title': instance.title,
+        'text': instance.text,
+        'pub_date': instance.pub_date.strftime('%Y-%m-%dT%H:%M'),
+        'location_user': getattr(instance, 'location_user', ''),
+        'location': getattr(instance, 'location', None),
+        'category_user': getattr(instance, 'category_user', ''),
+        'category': getattr(instance, 'category', None),
+        'image': instance.image,
+        'is_published': instance.is_published
+    }
+
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            # Получаем очищенные данные из формы
+            data = form.cleaned_data
+
+            # Обновляем существующее сообщение
+            instance.title = data['title']
+            instance.text = data['text']
+            instance.pub_date = data['pub_date']
+            instance.location_user = data['location_user'] or ''
+            instance.location = data['location'] or None
+            instance.category_user = data['category_user'] or ''
+            instance.category = data['category'] or None
+            instance.is_published = data['is_published']
+
+            # Если загружено новое изображение, заменяем старое
+            if request.FILES.get('image'):
+                instance.image = request.FILES['image']
+
+            # Сохраняем изменения
+            instance.save()
+
+            return redirect('blog:post_detail', post_id=post_id)
+    else:
+        form = PostForm(initial=initial_data)
+
     context = {'form': form}
-
-    if form.is_valid():
-        post = form.save(commit=False)
-        post.author = request.user
-        form.save()
-        return redirect('blog:post_detail', post_id=post_id)
-
     return render(request, template_name, context)
 
 
@@ -305,8 +336,20 @@ def delete_post(request, post_id):
 
     if request.user != instance.author:
         return redirect('blog:post_detail', post_id=post_id)
+    
+    initial_data = {
+        'title': instance.title,
+        'text': instance.text,
+        'pub_date': instance.pub_date.strftime('%Y-%m-%dT%H:%M'),
+        'location_user': getattr(instance, 'location_user', ''),
+        'location': getattr(instance, 'location', None),
+        'category_user': getattr(instance, 'category_user', ''),
+        'category': getattr(instance, 'category', None),
+        'image': instance.image,
+        'is_published': instance.is_published
+    }
 
-    form = PostForm(instance=instance)
+    form = PostForm(initial=initial_data)
     context = {'form': form}
 
     if request.method == 'POST':
